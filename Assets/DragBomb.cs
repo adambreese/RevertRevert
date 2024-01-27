@@ -1,13 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class DragObject2 : MonoBehaviour
+public class DragBomb : MonoBehaviour
 {
+    // Start is called before the first frame update
     private bool dragging = false;
     private float distance;
     Color originalColor;
@@ -18,7 +17,14 @@ public class DragObject2 : MonoBehaviour
     Quaternion worldRotation;
     Quaternion storedWorldRotation;
     bool notFirstRespawn = false;
+    bool isArmed = false;
     Rigidbody rb;
+    Collider collider;
+
+    public float explosionForce = 1000f;
+    public float blastRadius = 5f;
+    public float upwardModifier = 2f;
+
 
     [SerializeField]
     protected float timeout = 0f;
@@ -29,6 +35,8 @@ public class DragObject2 : MonoBehaviour
         mouseDownColor = Color.Lerp(originalColor, Color.white, 0.3f);
         worldPos = transform.position;
         rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
+        collider = GetComponent<Collider>();
         worldRotation = transform.rotation;
     }
     void Update()
@@ -40,7 +48,7 @@ public class DragObject2 : MonoBehaviour
             transform.position = new Vector3(rayPoint.x, rayPoint.y, transform.position.z);
         }
     }
-    
+
 
     void OnMouseDown()
     {
@@ -52,22 +60,36 @@ public class DragObject2 : MonoBehaviour
 
     void OnMouseUp()
     {
+        isArmed = true;
         GetComponent<MeshRenderer>().material.color = originalColor;
         dragging = false;
         transform.parent = null;
         enabled = false;
         Vector3 lockedPosition = new Vector3(transform.position.x, transform.position.y, 0f);
         transform.position = lockedPosition;
-        rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
-        
-        Timeout();
+        rb.constraints = RigidbodyConstraints.FreezePositionZ;
+        rb.useGravity = true;
+        PassRespawnInfo();
     }
-    async void Timeout()
+    private void OnCollisionEnter(Collision collision)
     {
-        if (timeout > 0)
+        if (isArmed)
         {
-            await Task.Delay(Mathf.RoundToInt(1000 * timeout));
-            gameObject.SetActive(false);
+            Explode();
+            Destroy(gameObject);
+        }
+    }
+    private void Explode()
+    {
+        Collider[] colliders = Physics.OverlapSphere(transform.position, blastRadius);
+
+        foreach (var collider in colliders)
+        {
+            Rigidbody rb = collider.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.AddExplosionForce(explosionForce, transform.position, blastRadius, upwardModifier);
+            }
         }
     }
 
@@ -76,15 +98,15 @@ public class DragObject2 : MonoBehaviour
         if (notFirstRespawn)
         {
             GameObject newInstance = Instantiate(gameObject, storedWorldPos, storedWorldRotation);
-            newInstance.GetComponent<DragObject2>().enabled = true;
-            DragObject2 mainScript = newInstance.GetComponent<DragObject2>();
+            newInstance.GetComponent<DragBomb>().enabled = true;
+            DragBomb mainScript = newInstance.GetComponent<DragBomb>();
             mainScript.SetSpawnPosition(storedWorldPos, storedWorldRotation);
         }
         else
         {
             GameObject newInstance = Instantiate(gameObject, worldPos, worldRotation);
-            newInstance.GetComponent<DragObject2>().enabled = true;
-            DragObject2 mainScript = newInstance.GetComponent<DragObject2>();
+            newInstance.GetComponent<DragBomb>().enabled = true;
+            DragBomb mainScript = newInstance.GetComponent<DragBomb>();
             mainScript.SetSpawnPosition(worldPos, worldRotation);
 
         }

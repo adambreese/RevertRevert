@@ -1,12 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class DragObject2 : MonoBehaviour
+public class DragPinwheel : MonoBehaviour
 {
     private bool dragging = false;
     private float distance;
@@ -29,6 +27,7 @@ public class DragObject2 : MonoBehaviour
         mouseDownColor = Color.Lerp(originalColor, Color.white, 0.3f);
         worldPos = transform.position;
         rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezePosition;
         worldRotation = transform.rotation;
     }
     void Update()
@@ -40,7 +39,7 @@ public class DragObject2 : MonoBehaviour
             transform.position = new Vector3(rayPoint.x, rayPoint.y, transform.position.z);
         }
     }
-    
+
 
     void OnMouseDown()
     {
@@ -58,8 +57,8 @@ public class DragObject2 : MonoBehaviour
         enabled = false;
         Vector3 lockedPosition = new Vector3(transform.position.x, transform.position.y, 0f);
         transform.position = lockedPosition;
-        rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
-        
+        rb.constraints = RigidbodyConstraints.FreezePosition;
+        PassRespawnInfo();
         Timeout();
     }
     async void Timeout()
@@ -76,15 +75,15 @@ public class DragObject2 : MonoBehaviour
         if (notFirstRespawn)
         {
             GameObject newInstance = Instantiate(gameObject, storedWorldPos, storedWorldRotation);
-            newInstance.GetComponent<DragObject2>().enabled = true;
-            DragObject2 mainScript = newInstance.GetComponent<DragObject2>();
+            newInstance.GetComponent<DragPinwheel>().enabled = true;
+            DragPinwheel mainScript = newInstance.GetComponent<DragPinwheel>();
             mainScript.SetSpawnPosition(storedWorldPos, storedWorldRotation);
         }
         else
         {
             GameObject newInstance = Instantiate(gameObject, worldPos, worldRotation);
-            newInstance.GetComponent<DragObject2>().enabled = true;
-            DragObject2 mainScript = newInstance.GetComponent<DragObject2>();
+            newInstance.GetComponent<DragPinwheel>().enabled = true;
+            DragPinwheel mainScript = newInstance.GetComponent<DragPinwheel>();
             mainScript.SetSpawnPosition(worldPos, worldRotation);
 
         }
