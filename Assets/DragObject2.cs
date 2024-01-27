@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class DragObject : MonoBehaviour
+public class DragObject2 : MonoBehaviour
 {
     private bool dragging = false;
     private float distance;
@@ -15,7 +15,10 @@ public class DragObject : MonoBehaviour
     private Vector3 originalTransform;
     Vector3 worldPos;
     Vector3 storedWorldPos;
+    Quaternion worldRotation;
+    Quaternion storedWorldRotation;
     bool notFirstRespawn = false;
+    Rigidbody rb;
 
     [SerializeField]
     protected float timeout = 0f;
@@ -24,18 +27,15 @@ public class DragObject : MonoBehaviour
         Renderer renderer = GetComponent<Renderer>();
         originalColor = renderer.material.color;
         mouseDownColor = Color.Lerp(originalColor, Color.white, 0.3f);
-
+        worldPos = transform.position;
+        rb = GetComponent<Rigidbody>();
+        worldRotation = transform.rotation;
     }
-    IEnumerator Start()
-    {
-        SlotDebugger parentScript = GetComponentInParent<SlotDebugger>();
-        yield return new WaitForEndOfFrame();  // Wait for the parent's coroutine to complete
-        worldPos = parentScript.GetPosition();
 
-    }
-    public void SetSpawnPosition(Vector3 spawnPos)
+    public void SetSpawnPosition(Vector3 spawnPos, Quaternion spawnRotation)
     {
         storedWorldPos = spawnPos;
+        storedWorldRotation = spawnRotation;
         notFirstRespawn = true;
 
     }
@@ -54,19 +54,22 @@ public class DragObject : MonoBehaviour
         dragging = false;
         transform.parent = null;
         enabled = false;
+        Vector3 lockedPosition = new Vector3(transform.position.x, transform.position.y, 0f);
+        transform.position = lockedPosition;
+        rb.constraints = RigidbodyConstraints.FreezePosition | RigidbodyConstraints.FreezeRotation;
         if (notFirstRespawn)
         {
-            GameObject newInstance = Instantiate(gameObject, storedWorldPos, Quaternion.identity);
-            newInstance.GetComponent<DragObject>().enabled = true;
-            DragObject mainScript = newInstance.GetComponent<DragObject>();
-            mainScript.SetSpawnPosition(storedWorldPos);
+            GameObject newInstance = Instantiate(gameObject, storedWorldPos, storedWorldRotation);
+            newInstance.GetComponent<DragObject2>().enabled = true;
+            DragObject2 mainScript = newInstance.GetComponent<DragObject2>();
+            mainScript.SetSpawnPosition(storedWorldPos, storedWorldRotation);
         }
         else
         {
-            GameObject newInstance = Instantiate(gameObject, worldPos, Quaternion.identity);
-            newInstance.GetComponent<DragObject>().enabled = true;
-            DragObject mainScript = newInstance.GetComponent<DragObject>();
-            mainScript.SetSpawnPosition(worldPos);
+            GameObject newInstance = Instantiate(gameObject, worldPos, worldRotation);
+            newInstance.GetComponent<DragObject2>().enabled = true;
+            DragObject2 mainScript = newInstance.GetComponent<DragObject2>();
+            mainScript.SetSpawnPosition(worldPos, worldRotation);
 
         }
         Timeout();

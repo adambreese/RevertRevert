@@ -7,21 +7,25 @@ using UnityEngine;
 public class CharController : MonoBehaviour
 {
     // Update is called once per frame[
-    [SerializeField]
-    private Vector3 lastPos;
+    //[SerializeField]
+    //private Vector3 lastPos;
     private bool isGametime = false;
+    public GameObject timer;
+    private Timer timerScript;
     bool isStuck = false;
     float movementTolerance = 0.01f;
     void Start()
     {
         CheckTime();
+        timerScript = timer.GetComponent<Timer>();
     }
 
     void Update()
     {
-        
-        MoveRight();
+
+
         CheckForObstacle();
+
     }
 
     void CheckForObstacle()
@@ -58,7 +62,9 @@ public class CharController : MonoBehaviour
 
     void FixedUpdate()
     {
-        IsStuck();
+        //IsStuck();
+        MoveRight();
+
     }
     [SerializeField]
     float force = 10f;
@@ -67,29 +73,30 @@ public class CharController : MonoBehaviour
     [SerializeField]
     float jumpForce = 10f;
 
-    void IsStuck()
-    {
-        var distance = GetHorizontalDistance(lastPos) / Time.deltaTime;
-        lastPos = transform.position;
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (distance <= movementTolerance && rb.velocity.y < 0)
-        {
-            isStuck = true;
-        }
-        else
-        {
-            isStuck = false;
-        }
-    }
+    //void IsStuck()
+    //{
+    //    var distance = GetHorizontalDistance(lastPos) / Time.deltaTime;
+    //    lastPos = transform.position;
+    //    Rigidbody rb = GetComponent<Rigidbody>();
+    //    if (distance <= movementTolerance && rb.velocity.y < 0)
+    //    {
+    //        isStuck = true;
+    //    }
+    //    else
+    //    {
+    //        isStuck = false;
+    //    }
+    //}
 
     private void MoveRight()
     {
-        if (isStuck)
+
+
+        if (timerScript.levelWin == true)
         {
             GetComponent<Rigidbody>().AddForce(Vector3.right * 0);
         }
-
-        if (IsGrounded())
+        else if (IsGrounded())
         {
             GetComponent<Rigidbody>().AddForce(Vector3.right * force);
         }
@@ -97,7 +104,7 @@ public class CharController : MonoBehaviour
         {
             GetComponent<Rigidbody>().AddForce(Vector3.right * horizontalForceWhileJumping);
         }
-        
+
     }
     bool IsGrounded()
     {
@@ -129,11 +136,11 @@ public class CharController : MonoBehaviour
             jumping = false;
         }
     }
-    
 
-    public float GetHorizontalDistance(Vector3 compare)
-    {
-        var distance = new Vector3(transform.position.x, 0, transform.position.z) - new Vector3(compare.x, 0, compare.z);
-        return distance.magnitude;
-    }
+
+    //public float GetHorizontalDistance(Vector3 compare)
+    //{
+    //    var distance = new Vector3(transform.position.x, 0, transform.position.z) - new Vector3(compare.x, 0, compare.z);
+    //    return distance.magnitude;
+    //}
 }
