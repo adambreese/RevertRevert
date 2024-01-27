@@ -1,0 +1,15 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ClippyWin : MonoBehaviour
+{
+    private void OnTriggerEnter(Collider other)
+    {
+        var clippy = other.GetComponent<Clippy>();
+        if(clippy != null )
+        {
+            Debug.Log("Lose!");
+        }
+    }
+}
