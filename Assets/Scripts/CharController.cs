@@ -10,13 +10,14 @@ public class CharController : MonoBehaviour
     //[SerializeField]
     //private Vector3 lastPos;
     private bool isGametime = false;
-    public GameObject timer;
+    private GameObject timer;
     private Timer timerScript;
     bool isStuck = false;
     float movementTolerance = 0.01f;
     void Start()
     {
         CheckTime();
+        timer = GameObject.Find("Timer");
         timerScript = timer.GetComponent<Timer>();
     }
 

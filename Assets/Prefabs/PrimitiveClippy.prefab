@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 8889473110894104112}
   - component: {fileID: 3718879706618207967}
   m_Layer: 0
-  m_Name: Clippy
+  m_Name: PrimitiveClippy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -13,7 +13,7 @@ public class Timer : MonoBehaviour
     private float maxTime = 10f;
     private Coroutine countdownCoroutine;
 
-    void Start()
+    public void StartTimer()
     {
         countdownCoroutine = StartCoroutine(Countdown());
     }

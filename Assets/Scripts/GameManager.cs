@@ -13,7 +13,9 @@ public class GameManager : MonoBehaviour
     public GameObject obstacleInterface;
     public GameObject timer;
     public GameObject clippy;
+    public GameObject mainMenu;
     public Button restartButton;
+    public Button startButton;
     private ClippyWin clippyWinScript;
     private Timer timerScript;
     GameObject[] platformList;
@@ -26,12 +28,25 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         lossScreen.SetActive(false);
+        level.SetActive(false);
+        obstacleInterface.SetActive(false);
+        startButton.onClick.AddListener(StartLevel);
         restartButton.onClick.AddListener(RestartLevel);
 
     }
 
 
     Vector3 clippySpawnPos = new Vector3(-9f, 4f, 0f);
+
+    void StartLevel()
+    {
+        Instantiate(clippy, clippySpawnPos, Quaternion.identity);
+        timerScript.StartTimer();
+        mainMenu.SetActive(false);
+        obstacleInterface.SetActive(true);
+        level.SetActive(true);
+
+    }
 
     void RestartLevel()
     {

@@ -21,6 +21,7 @@ public class DragBomb : MonoBehaviour
     Rigidbody rb;
     Collider collider;
 
+    public GameObject explosionPrefab;
     public float explosionForce = 1000f;
     public float blastRadius = 5f;
     public float upwardModifier = 2f;
@@ -76,6 +77,8 @@ public class DragBomb : MonoBehaviour
         if (isArmed)
         {
             Explode();
+            Instantiate(explosionPrefab, transform.position, Quaternion.identity);
+            Debug.Log("check");
             Destroy(gameObject);
         }
     }
